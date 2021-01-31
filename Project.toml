@@ -1,0 +1,13 @@
+name = "SignalAlignment"
+uuid = "00a43169-c78a-487b-af83-05d1ed4d9f28"
+authors = ["Fredrik Bagge Carlson"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
