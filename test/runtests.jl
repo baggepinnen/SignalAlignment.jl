@@ -1,4 +1,5 @@
 using SignalAlignment
+using Distances
 using Test
 
 @testset "SignalAlignment.jl" begin
@@ -6,6 +7,20 @@ signals = [sin.((0:0.01:6pi) .+ rand()) for _ in 1:50]
 signals_unequal = [sin.((0:0.01:(6pi + rand())) .+ rand()) for _ in 1:50]
 signals_short = [sin.((0:0.01:(4pi + rand())) .+ rand()) for _ in 1:10]
 signals_mv = [randn(2,10) for _ in 1:5]
+
+@testset "Master methods" begin
+    @info "Testing Master methods"
+
+    @test get_master(Index(5), signals) == signals[5]
+    @test get_master(5, signals) == signals[5]
+    @test get_master(Longest(), signals_unequal) == signals_unequal[argmax(length.(signals_unequal))]
+    @test get_master(Shortest(), signals_unequal) == signals_unequal[argmin(length.(signals_unequal))]
+    @test get_master(Centroid(Euclidean()), signals) ∈ signals
+    @test get_master(Barycenter(Euclidean()), signals) == mean(signals)
+    bc = get_master(Barycenter(DTW(radius=5)), signals_short)
+    @test typeof(bc) == eltype(signals_short)
+    # plot(signals_short); plot!(bc, l=(5, :red))
+end
 
 
 @testset "outputs" begin

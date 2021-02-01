@@ -28,10 +28,16 @@ function get_master(method::Shortest, s)
 end
 
 function get_master(method::Centroid, s)
-    # calc all pairwise distances
-    # return the one with smallest mean (squared?) distance
+    D = Distances.pairwise(method.dist, s, s)
+    Dm = vec(mean(D, dims=2))
+    s[argmin(Dm)]
 end
 
-function get_master(method::Barycenter, s)
-    # return barycenter under inner distance
+function get_master(method::Barycenter{Euclidean}, s)
+    mean(s)
+end
+
+function get_master(method::Barycenter{<:DTW}, s)
+    bc, _ = dba(s, method.dist) # TODO: maybe use SoftDTW instead
+    bc
 end
