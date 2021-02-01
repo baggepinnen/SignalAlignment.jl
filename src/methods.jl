@@ -51,7 +51,7 @@ end
 
 ## Warp method
 Base.@kwdef struct Warp{T} <: AbstractMethod
-    warp_method::T = DTW
+    warp_method::T
 end
 
 function compute_aligning_indices(s, method::Warp{<:DTW}; master) # TODO, maybe the inner method has options
@@ -61,7 +61,10 @@ function compute_aligning_indices(s, method::Warp{<:DTW}; master) # TODO, maybe 
     inds = map(s) do si
         si === sm && (return collect(1:lastlength(sm)))
         _,i1,i2 = distpath(d, si, sm)
-        i1
+        # i1
+        # i1_, i2_ = recompute_indices(i1,i2)
+        # i1_
+        align2second(i1,i2)
     end
     inds
 end
