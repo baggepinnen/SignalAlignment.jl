@@ -33,12 +33,14 @@ end
 @testset "Methods" begin
     @info "Testing Methods"
 
+    master = Index(1)
+    s0 = sin.((0:0.01:6pi))
+    s1 = s0[1:end-1]
+    s2 = s0[2:end]
+
     @testset "Delay" begin
         @info "Testing Delay"
         
-        s0 = sin.((0:0.01:6pi))
-        s1 = s0[1:end-1]
-        s2 = s0[2:end]
         
         method = XcorrDelay()
         @test compute_delay(method, s1, s1) == 0
@@ -50,24 +52,24 @@ end
         @test compute_delay(method, s1, s2) == 1
         @test compute_delay(method, s2, s1) == -1
         
-        method = Delay(delay_method = XcorrDelay(), master = 1)
-        inds = compute_aligning_indices([s1,s2], method)
-        @test inds == [1:length(s1)-1, 2:length(s2)]
+        method = Delay(delay_method = XcorrDelay())
+        inds = compute_aligning_indices([s1,s2], method; master)
+        @test inds == [2:length(s1), 1:length(s2)-1]
 
-        method = Delay(delay_method = DTWDelay(), master = 1)
-        inds = compute_aligning_indices([s1,s2], method)
-        @test inds == [1:length(s1)-1, 2:length(s2)]
+        method = Delay(delay_method = DTWDelay())
+        inds = compute_aligning_indices([s1,s2], method; master)
+        @test inds == [2:length(s1), 1:length(s2)-1]
     end
 
 
     @testset "Warp" begin
         @info "Testing Warp"
-        method = Warp(warp_method=DTW(radius=3), master=1)
-        inds = compute_aligning_indices([s1,s2], method)
+        method = Warp(warp_method=DTW(radius=3))
+        inds = compute_aligning_indices([s1,s2], method; master)
         @test inds[1] == 1:length(s1)
-        @test inds[2] == [1; 1:length(s2)-1]
+        @test inds[2] == [1; 1:length(s2)]
 
-        inds = compute_aligning_indices(signals, method)
+        inds = compute_aligning_indices(signals, method; master)
         @test all(length.(inds) .>= length(inds[1])) # all should be at least as long as the master
     end
 end
@@ -75,10 +77,10 @@ end
 
     @testset "align_signals" begin
         @info "Testing align_signals"
-        method = Delay(delay_method=DTWDelay(), master=1)
+        method = Delay(delay_method=DTWDelay())
         for method ∈ [
-                Delay(delay_method = DTWDelay(), master=1)
-                Delay(delay_method = XcorrDelay(), master = 1)
+                Delay(delay_method = DTWDelay())
+                Delay(delay_method = XcorrDelay())
             ]
             @show method
             # test with same length
@@ -98,7 +100,7 @@ end
             # display(current())
         end
         
-        method = Delay(master=1)
+        method = Delay()
         inds = align_signals(signals_short, method; output=Indices())
         sa = getindex.(signals_short, inds)
         sa2 = align_signals(signals_short, method; output=Signals())
