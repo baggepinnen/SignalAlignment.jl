@@ -69,17 +69,25 @@ function compute_aligning_indices(s, method::Warp{<:DTW}; master) # TODO, maybe 
     inds
 end
 
-# function compute_aligning_indices(s, method::Warp{<:GDTW}) # TODO, maybe the inner method has options
-#     sm = get_master(master, s)
-#     # find delays to align with master
-#     inds = map(s) do si
-#         y = LinearInterpolation(sm)
-#         si === sm && (return y)
-#         x = LinearInterpolation(si)
-#         d,i1,i2 = gdtw(x, y)
-#         i1
-#     end
-#     @assert all(length.(inds) .== length(inds[1])) # TODO: figure this out
 
-#     inds
-# end
+function align_signals(signals, method::Warp{<:DynamicAxisWarping.GDTW}; master = Index(1), by=nothing, output = Signals())
+
+    sm = get_master(master, signals)
+    ts = LinRange(0, 1, lastindex(sm))
+    y = LinearInterpolation(sm)
+    kwargs = method.warp_method.opts
+    res = map(signals) do si
+        # si === sm && (return y)
+        x = LinearInterpolation(si)
+        d,i1,i2 = gdtw(x, y; symmetric=true, kwargs...)
+        if output isa Indices
+            return i1
+        else
+            si === sm && x.(ts)
+            r = x.(i1.(ts))
+            sm isa AbstractVector{<:Number} ? r : reduce(hcat, r)
+        end
+    end
+    res
+end
+

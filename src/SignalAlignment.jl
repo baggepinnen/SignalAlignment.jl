@@ -2,8 +2,9 @@ module SignalAlignment
 using Statistics
 using Distances
 using DSP
+using RecipesBase
 
-export DTW
+export DTW, GDTW
 using DynamicAxisWarping
 using DynamicAxisWarping.SlidingDistancesBase
 
@@ -30,9 +31,11 @@ include("by.jl")
 ## Main algorithm
 export align_signals
 function align_signals(signals, method; master = Index(1), by=nothing, output = Indices())
-    s = get_alignment_signals(signals, by)
+    s = get_alignment_signals(signals, by) # TODO this should prepare LinearInterpolation based on method
     inds = compute_aligning_indices(s, method; master)
     get_output(inds, signals, output)
 end
+
+include("plotting.jl")
 
 end

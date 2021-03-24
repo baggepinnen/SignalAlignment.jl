@@ -15,6 +15,13 @@ function get_output(inds, signals, output::Signals)
     [s[!,i] for (s,i) in zip(signals,inds)]
 end
 
+# function get_output(inds::Vector{<:LinearInterpolation}, signals, output::Signals)
+#     map(zip(signals,inds)) do (s,i) 
+#         li = LinearInterpolation(s)
+#         li.(i.())
+#     end
+# end
+
 function recompute_indices(i1, i2)
     out = Tuple{Int, Int}[]
     i = j = 1
@@ -36,7 +43,7 @@ function align2second(i1, i2)
     out = Tuple{Int, Int}[]
     j = 1
     map(1:i2[end]) do i
-        j0 = findfirst(>(i-1), i2)
+        j0 = findfirst(>(i-1), i2) # todo findfirstsorted
         j1 = findlast(<=(i), i2)
         j = j1 === nothing ? j : floor(Int, 0.5*(j0 + j1))
         i1[j]
