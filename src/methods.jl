@@ -16,8 +16,13 @@ function compute_delay(method::DTWDelay, s1, s2)
     round(Int, median(i1-i2))
 end
 
-function compute_delay(method::XcorrDelay, s1, s2)
+function compute_delay(method::XcorrDelay, s1::AbstractVector, s2::AbstractVector)
     DSP.finddelay(s1, s2)
+end
+
+function compute_delay(method::XcorrDelay, s1, s2)
+    @warn "XcorrDelay only really supports univariate signals. I'll reduce the series to a univariate series by computing the norm of the first-order difference" maxlog=1
+    DSP.finddelay(norm.(eachcol(diff(s1, dims=2))), norm.(eachcol(diff(s2, dims=2))))
 end
 
 
@@ -37,6 +42,7 @@ function compute_aligning_indices(s, method::Delay; master)
     
     # New window length
     wl = lastlength(sm) - lp - rp
+    @assert wl > 0 "Computed window length is negative, this might indicate that the delay computation failed"
     
     # trim individual index sets to fit into new master window
     for i in eachindex(inds)

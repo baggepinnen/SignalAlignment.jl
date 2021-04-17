@@ -1,5 +1,5 @@
 module SignalAlignment
-using Statistics
+using Statistics, LinearAlgebra
 using Distances
 using DSP
 using RecipesBase
