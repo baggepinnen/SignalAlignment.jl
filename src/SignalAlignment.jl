@@ -3,6 +3,7 @@ using Statistics, LinearAlgebra
 using Distances
 using DSP
 using RecipesBase
+using Statistics, LinearAlgebra
 
 export DTW, GDTW
 using DynamicAxisWarping
@@ -30,6 +31,19 @@ include("by.jl")
 
 ## Main algorithm
 export align_signals
+
+
+"""
+    align_signals(signals, method; master = Index(1), by = nothing, output = Indices())
+
+
+# Arguments:
+- `signals`: A vector of signals
+- `method`: Any of `Delay, XcorrDelay, DTWDelay, Warp`
+- `master`: The signal to align all others to, e.g., `Index(1), Longest(), Shortest(), Centroid(), Barycenter()`
+- `by`: DESCRIPTION
+- `output`: `Indices()` or `Signals()`
+"""
 function align_signals(signals, method; master = Index(1), by=nothing, output = Indices())
     s = get_alignment_signals(signals, by) # TODO this should prepare LinearInterpolation based on method
     inds = compute_aligning_indices(s, method; master)
