@@ -13,7 +13,7 @@ end
 
 function compute_delay(method::DTWDelay, s1, s2)
     d,i1,i2 = dtw(s1, s2)
-    round(Int, median(i1-i2))
+    round(Int, StatsBase.mode(i1-i2))
 end
 
 function compute_delay(method::XcorrDelay, s1::AbstractVector, s2::AbstractVector)
