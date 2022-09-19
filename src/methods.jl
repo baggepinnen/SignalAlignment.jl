@@ -64,6 +64,7 @@ function compute_aligning_indices(s, method::Warp{<:DTW}; master) # TODO, maybe 
     sm = get_master(master, s)
     d = method.warp_method
     # find delays to align with master
+    # inds = ThreadPools.bmap(s) do si
     inds = map(s) do si
         si === sm && (return collect(1:lastlength(sm)))
         _,i1,i2 = distpath(d, si, sm)
@@ -82,7 +83,7 @@ function align_signals(signals, method::Warp{<:DynamicAxisWarping.GDTW}; master 
     ts = LinRange(0, 1, lastindex(sm))
     y = LinearInterpolation(sm)
     kwargs = method.warp_method.opts
-    res = map(signals) do si
+    res = ThreadPools.bmap(signals) do si
         # si === sm && (return y)
         x = LinearInterpolation(si)
         d,i1,i2 = gdtw(x, y; symmetric=true, kwargs...)

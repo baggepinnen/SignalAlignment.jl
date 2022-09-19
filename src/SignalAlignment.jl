@@ -1,9 +1,10 @@
 module SignalAlignment
-using Statistics, LinearAlgebra
 using Distances
 using DSP
 using RecipesBase
 using Statistics, LinearAlgebra
+using StatsBase
+using ThreadPools
 
 export DTW, GDTW
 using DynamicAxisWarping
