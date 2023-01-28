@@ -15,6 +15,12 @@ ThreadPools = "b189fb0b-2eb5-4ed4-bc0c-d34c51242431"
 
 [compat]
 julia = "1.6"
+DSP = "0.7"
+Distances = "0.10"
+DynamicAxisWarping = "0.4.13"
+RecipesBase = "1"
+StatsBase = "0.33"
+ThreadPools = "2.1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
