@@ -26,7 +26,11 @@ function compute_delay(method::XcorrDelay, s1, s2)
 end
 
 
+"""
+    compute_aligning_indices(s, method::Delay; master)
 
+Internal method that computes aligning indices. 
+"""
 function compute_aligning_indices(s, method::Delay; master)
     sm = get_master(master, s)
     inds = [1:lastlength(s) for s in s]

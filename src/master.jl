@@ -1,12 +1,50 @@
 abstract type MasterMethod end
+"""
+    Index(i)
+
+Align all signals to the signal with index `i`.
+
+# Fields:
+- `i::Int`
+"""
 struct Index <: MasterMethod
     i::Int
 end
+
+"""
+    Longest
+
+Align all signals to the longest signal
+"""
 struct Longest <: MasterMethod end
+
+"""
+    Shortest
+
+Align all signals to the shortest signal
+"""
 struct Shortest <: MasterMethod end
+
+"""
+    Centroid{D}
+
+Align all signals to the centroid (generalized median).
+
+# Fields:
+- `dist::D`: Metric used to compute the centroid, e.g., Distances.SqEuclidean`.
+"""
 struct Centroid{D} <: MasterMethod
     dist::D
 end
+
+"""
+    Barycenter{D}
+
+Align all signals to the barycenter (generalized mean).
+
+# Fields:
+- `dist::D`: Metric used to compute the barycenter, e.g., Distances.SqEuclidean`.
+"""
 struct Barycenter{D} <: MasterMethod
     dist::D
 end

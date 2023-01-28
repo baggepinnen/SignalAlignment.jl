@@ -1,12 +1,30 @@
 abstract type AbstractOutput end
 
+"""
+    Indices
+
+Output indices that compute the alignment
+
+# Fields:
+- `crop::Bool = true`
+"""
 Base.@kwdef struct Indices <: AbstractOutput
     crop::Bool = true
 end
 
-Base.@kwdef struct Signals <: AbstractOutput
+"""
+    Signals
+
+Output the aligned signals
+"""
+struct Signals <: AbstractOutput
 end
 
+"""
+    get_output(inds, signals, output)
+
+Compute the output given indices and signals
+"""
 function get_output(inds, signals, output::Indices)
     inds
 end
