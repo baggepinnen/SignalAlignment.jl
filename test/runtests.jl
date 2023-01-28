@@ -1,6 +1,7 @@
 using SignalAlignment
 using Distances
 using Test
+using Plots
 using LinearAlgebra, Statistics
 
 @testset "SignalAlignment.jl" begin
@@ -93,7 +94,7 @@ end
         asigs = align_signals([s1,s2], method; master)
         ==(length.(asigs)...)
         @test norm(asigs[1] - asigs[2]) < norm(s1 - s2)
-        
+
     end
 end
 
@@ -136,5 +137,10 @@ end
         
         @test all(length.(inds) .== length(inds[1]))
 
+        @testset "plot" begin
+            @info "Testing plot"
+            syncplot(signals, method)
+        end
     end
+
 end
