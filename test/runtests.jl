@@ -1,6 +1,7 @@
 using SignalAlignment
 using Distances
 using Test
+using LinearAlgebra
 
 @testset "SignalAlignment.jl" begin
 signals = [sin.((0:0.01:6pi) .+ rand()) for _ in 1:50]
@@ -82,7 +83,7 @@ end
         method = Warp(warp_method=DTW(radius=3))
         inds = compute_aligning_indices([s1,s2], method; master)
         @test inds[1] == 1:length(s1)
-        @test inds[2] == [1; 1:length(s2)]
+        @test inds[2] == [1; 1:length(s2)-1]
 
         inds = compute_aligning_indices(signals, method; master)
         @test all(length.(inds) .>= length(inds[1])) # all should be at least as long as the master

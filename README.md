@@ -4,6 +4,10 @@
 [![Coverage](https://codecov.io/gh/baggepinnen/SignalAlignment.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/baggepinnen/SignalAlignment.jl)
 
 
+This package takes a vector of signals and tries to align them.
+
+One use case for this is when two different instruments are used to record something that is going on, but they may record at different sample rates, have no synchronization, or have different time offsets. Before analyzing such experiments, it may be helpful to align the signals to each other. 
+
 # Function reference
 - `align_signals`: Main entrypoint for signal alignment
 - `syncplot`: takes the same arguments as `align_signals` (except `output`) and plots the aligned signals
@@ -40,14 +44,15 @@ aligned_signals = [signals[i][inds[i]] for i in eachindex(signals)]
 
 # Examples
 
-## Align all signals to one particular signal
+## Align shifted signals to one particular signal
 We can indicate that we want to align a vector of signals to a particular signal by passing the index of the signal we want to align to as the `master` argument to `align_signals`. The default master if none is provided is `Index(1)` like we use below.
 ```julia
 using SignalAlignment
-s0 = sin.((0:0.01:2pi)) # A signal
+s0 = sin.((0:0.05:2pi)) # A noisy signal
 s1 = s0[1:end-10]       # A second signal, misaligned with the first
 s2 = s0[20:end]         # A third signal
 signals = [s0, s1, s2]  # A vector of signals we want to align
+signals = [s .+ 0.02 .* randn(length(s)) for s in signals] # Add some noise to the signals
 
 master = Index(1)       # Indicate which signal is the master to which the others are aligned
 method = Delay(delay_method=DTWDelay())
@@ -60,13 +65,14 @@ inds = align_signals(signals, method; master, output)
  2:1884
  1:1883
  ```
- 
+
 The indices returned by `align_signals` can be used to align the signals to the master signal.
 ```julia
 aligned_signals = [signals[i][inds[i]] for i in eachindex(signals)]
 plot(signals, label=["s0" "s1" "s2"], l=(:dash, ))
-plot!(aligned_signals, label=["s0 aligned" "s1 aligned" "s2 aligned"], c=(1:3)')
+plot!(aligned_signals, label=["s0 aligned" "s1 aligned" "s2 aligned"], c=(1:3)', size=(600, 400))
 ```
+![image](https://user-images.githubusercontent.com/3797491/215254940-f8ced414-cbf3-4818-b31b-19199485de52.png)
 
 The example above used Dynamic-Time Warping (DTW) to find the optimal delay with which to shift the signals to the master. Rather than DTW, we can compute the delay using cross-correlation as well
 ```julia
@@ -74,3 +80,24 @@ method = Delay(delay_method = XcorrDelay())
 ```
 
 If we want to obtain the aligned signals directly as output rather than the aligning indices, we pass `output = Signals()`.
+
+## Align signals with different sample rates
+In this example, the second signal has a sample rate that is 2x lower than the first signal. We can align the signals by warping them using Dynamic-Time Warping (DTW) to fit the first signal. DTW is handled by the [DynamicAxisWarping.jl](https://github.com/baggepinnen/DynamicAxisWarping.jl) package.
+```julia
+using SignalAlignment
+s0 = sin.((0:0.05:2pi)) # A noisy signal
+s1 = s0[1:2:end-10]     # A second signal with 2x lower sample rate
+s2 = s0[20:end]         # A third signal
+signals = [s0, s1, s2]  # A vector of signals we want to align
+signals = [s .+ 0.02 .* randn(length(s)) for s in signals] # Add some noise to the signals
+
+master = Index(1)       # Indicate which signal is the master to which the others are aligned
+method = Warp(warp_method=DTW(radius=20))
+output = Signals() # Indicate that we want the aligned signals as output
+# syncplot(signals, method; master) # Call this if you only want to plot the aligned signals
+
+aligned_signals = align_signals(signals, method; master, output)
+plot(signals, label=["s0" "s1" "s2"], l=(:dash, ))
+plot!(aligned_signals, label=["s0 aligned" "s1 aligned" "s2 aligned"], c=(1:3)', size=(600, 400))
+```
+![image](https://user-images.githubusercontent.com/3797491/215255054-afedf97c-4913-4bed-923d-d5ac6b52c5a6.png)
