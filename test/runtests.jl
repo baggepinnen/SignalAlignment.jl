@@ -87,6 +87,13 @@ end
 
         inds = compute_aligning_indices(signals, method; master)
         @test all(length.(inds) .>= length(inds[1])) # all should be at least as long as the master
+
+
+        method = Warp(warp_method=GDTW(symmetric=false))
+        asigs = align_signals([s1,s2], method; master)
+        ==(length.(asigs)...)
+        @test norm(asigs[1] - asigs[2]) < norm(s1 - s2)
+        
     end
 end
 
