@@ -1,7 +1,7 @@
 using SignalAlignment
 using Distances
 using Test
-using LinearAlgebra
+using LinearAlgebra, Statistics
 
 @testset "SignalAlignment.jl" begin
 signals = [sin.((0:0.01:6pi) .+ rand()) for _ in 1:50]
