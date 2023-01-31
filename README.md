@@ -18,9 +18,9 @@ The method indicates how alignment is computed. The method is specified by passi
 - `Delay(; delay_method)`: Align signals by shifting them with respect to each other
     - `delay_method = DTWDelay()`: Align signals by computing the optimal delay using Dynamic-Time Warping. This can be computationally expensive for very long signals, but is more robust than `XcorrDelay`.
     - `delay_method = XcorrDelay()`: Align signals by computing the optimal delay using cross-correlation
-- `Warp`: Align signals by warping them with respect to each other
-    - `warp_method = DTW()`: Align signals by computing the optimal warp using Dynamic-Time Warping. See [DynamicAxisWarping.jl](https://github.com/baggepinnen/DynamicAxisWarping.jl) for options to `DTW`.
-    - `warp_method = GDTW()`: Align signals by computing the optimal warp using Generalized Dynamic-Time Warping. See [DynamicAxisWarping.jl](https://github.com/baggepinnen/DynamicAxisWarping.jl) for options to `GDTW`.
+- `Warp(; warp_method)`: Align signals by warping them with respect to each other
+    - `warp_method = DTW(; radius, ...)`: Align signals by computing the optimal warp using Dynamic-Time Warping. See [DynamicAxisWarping.jl](https://github.com/baggepinnen/DynamicAxisWarping.jl) for options to `DTW`.
+    - `warp_method = GDTW()`: Align signals by computing the optimal warp using Generalized Dynamic-Time Warping. See [DynamicAxisWarping.jl](https://github.com/baggepinnen/DynamicAxisWarping.jl) for options to `GDTW` or the example below.
 
 ## Master reference
 The master indicates which signal is used as the reference signal to which the other signals are aligned. The master is specified by passing a `master` argument to `align_signals`. The following masters are available:
@@ -102,7 +102,7 @@ plot!(aligned_signals, label=["s0 aligned" "s1 aligned" "s2 aligned"], c=(1:3)',
 ```
 ![image](https://user-images.githubusercontent.com/3797491/215255054-afedf97c-4913-4bed-923d-d5ac6b52c5a6.png)
 
-Notice how the signal that was sampled slowly has been stretched to fit the first signal. This introduces some artifacts, where some samples have been repeated. If the signals are instead aligned to the shortest signal, the longer signals are subsampled:
+Notice how the signal that was sampled slowly has been stretched to fit the first signal. This introduces some artifacts, where some samples have been repeated. If undesired, these artifacts can be mitigated somewhat by using generalized DTW, shown below. If the signals are instead aligned to the shortest signal, the longer signals are subsampled:
 ```julia
 master = Shortest() 
 aligned_signals = align_signals(signals, method; master, output)
@@ -111,7 +111,7 @@ plot!(aligned_signals, label=["s0 aligned" "s1 aligned" "s2 aligned"], c=(1:3)',
 ```
 ![image](https://user-images.githubusercontent.com/3797491/215255616-f924449c-edb2-4431-b6d2-ccfc58636d90.png)
 
-To get a smoother result, use generalized DTW (GDTW) instead of DTW. 
+To get a smoother result, use [generalized DTW (GDTW)](https://github.com/baggepinnen/DynamicAxisWarping.jl#generalized-dtw) instead of DTW. 
 ```julia
 master = Shortest()
 method = Warp(warp_method=GDTW(symmetric=false))
