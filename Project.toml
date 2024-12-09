@@ -1,7 +1,7 @@
 name = "SignalAlignment"
 uuid = "00a43169-c78a-487b-af83-05d1ed4d9f28"
 authors = ["Fredrik Bagge Carlson"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
