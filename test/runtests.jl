@@ -143,4 +143,39 @@ end
         end
     end
 
+    @testset "Shortest master + Indices" begin
+        @info "Testing Shortest master with Indices output"
+
+        timelen(x) = size(x, ndims(x))
+
+        # univariate sanity check
+        for dm in (XcorrDelay(), DTWDelay())
+            method = Delay(delay_method = dm)
+            inds = align_signals(signals_short, method; master = Shortest(), output = Indices())
+            @test all(length.(inds) .== length(inds[1]))
+            aligned = [s[i] for (s, i) in zip(signals_short, inds)]
+            ref = aligned[argmin(timelen.(signals_short))]
+            @test all(norm(a - ref) < (dm isa DTWDelay ? 0.5 : 5.0) for a in aligned)
+        end
+
+        method = Warp(warp_method = DTW(radius = 5))
+        inds = align_signals(signals_short, method; master = Shortest(), output = Indices())
+        @test all(length.(inds) .== length(inds[1]))
+
+        # multivariate signals of unequal length — this is what triggers the bug
+        T  = 0:0.05:4pi
+        base = vcat(sin.(T)', cos.(T)')
+        shifts = [0, 4, 2, 6, 3]
+        trims  = [20, 5, 15, 10, 25]
+        sigs_mv = [base[:, 1+s : end-tr] for (s, tr) in zip(shifts, trims)]
+
+        method = Delay(delay_method = DTWDelay())
+        inds = align_signals(sigs_mv, method; master = Shortest(), output = Indices())
+        @test all(length.(inds) .== length(inds[1]))
+        @test all(maximum(i) <= timelen(s) for (s, i) in zip(sigs_mv, inds))
+        aligned = [s[:, i] for (s, i) in zip(sigs_mv, inds)]
+        ref = aligned[argmin(timelen.(sigs_mv))]
+        @test all(norm(a - ref) < 1e-8 for a in aligned)
+    end
+
 end

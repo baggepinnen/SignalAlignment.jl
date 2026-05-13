@@ -33,7 +33,7 @@ Internal method that computes aligning indices.
 """
 function compute_aligning_indices(s, method::Delay; master)
     sm = get_master(master, s)
-    inds = [1:lastlength(s) for s in s]
+    inds = [1:lastlength(si) for si in s]
     # find delays to align with master
     d = map(s) do si
         si === sm && (return 0)
@@ -42,16 +42,16 @@ function compute_aligning_indices(s, method::Delay; master)
 
     # find left and right (virtual) zero padding
     lp = maximum(d)
-    rp = maximum(length(sm) .- (length.(s) .+ d))
-    
+    rp = maximum(lastlength(sm) .- (lastlength.(s) .+ d))
+
     # New window length
     wl = lastlength(sm) - lp - rp
     @assert wl > 0 "Computed window length is negative, this might indicate that the delay computation failed"
-    
+
     # trim individual index sets to fit into new master window
     for i in eachindex(inds)
         start = max(1, 1+lp-d[i])
-        stop = min(length(s[i]),start+wl-1)
+        stop = min(lastlength(s[i]), start+wl-1)
         inds[i] = start : stop
     end
     @assert all(length.(inds) .== length(inds[1]))
